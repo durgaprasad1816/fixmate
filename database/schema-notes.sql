@@ -1,0 +1,38 @@
+-- FixMate Database
+-- ==================
+-- You do NOT need to run this file by hand. The backend uses Hibernate with
+-- spring.jpa.hibernate.ddl-auto=update, so it creates/updates all these tables
+-- automatically the first time you run it, based on the Java entity classes.
+--
+-- This file is just a reference so you can see the shape of the database,
+-- and it's handy if you ever want to inspect data directly in phpMyAdmin/MySQL Workbench.
+--
+-- Step 1 (only manual step): create the empty database.
+CREATE DATABASE IF NOT EXISTS fixmate_db;
+
+-- The tables Hibernate will create for you:
+--
+-- users                    (id, full_name, email, phone, password, role, active, created_at)
+--   role = ADMIN | CUSTOMER | PROVIDER
+--
+-- service_categories       (id, name, description, active, created_at)
+--   These are the "occupations" - AC Repair, Plumbing, Electrical, etc.
+--   Admin adds new rows here from the Admin Dashboard -> Occupations tab.
+--
+-- provider_profiles        (id, user_id, category_id, business_name, bio,
+--                            experience_years, address, verified, blocked,
+--                            avg_rating, total_reviews, total_orders,
+--                            completed_orders, created_at)
+--   One row per provider (your AC/plumbing/electrical/plastic-welding friends).
+--   "verified" must be set true by admin before the provider is bookable.
+--
+-- bookings                 (id, customer_id, provider_id, category_id, description,
+--                            address, scheduled_date, status, created_at, updated_at)
+--   status = PENDING | ACCEPTED | REJECTED | IN_PROGRESS | COMPLETED | CANCELLED
+--
+-- booking_status_history   (id, booking_id, status, note, timestamp)
+--   Every status change is logged here - this powers the "Track Order" timeline.
+--
+-- reviews                  (id, booking_id, customer_id, provider_id, rating, comment, created_at)
+--
+-- notifications             (id, user_id, title, message, is_read, created_at)

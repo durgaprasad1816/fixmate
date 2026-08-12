@@ -1,0 +1,15 @@
+import { useEffect, useState } from "react";
+import client from "../../api/client";
+
+export default function AdminCategories() {
+  const [categories, setCategories] = useState([]); const [form, setForm] = useState({ name: "", description: "" }); const [error, setError] = useState(""); const [loading, setLoading] = useState(true); const [saving, setSaving] = useState(false);
+  const load = async () => { setLoading(true); setError(""); try { const res = await client.get("/api/admin/categories"); setCategories(Array.isArray(res.data) ? res.data : []); } catch (err) { setError(err.response?.status === 403 ? "Your admin session is not authorized. Please log in again." : err.response?.data?.message || "Could not load services."); } finally { setLoading(false); } };
+  useEffect(() => { load(); }, []);
+  const addCategory = async (e) => { e.preventDefault(); setSaving(true); setError(""); try { await client.post("/api/admin/categories", form); setForm({ name: "", description: "" }); await load(); } catch (err) { setError(err.response?.data?.message || "Could not add service."); } finally { setSaving(false); } };
+  const toggleActive = async (id) => { try { await client.put(`/api/admin/categories/${id}/toggle-active`); await load(); } catch (err) { setError(err.response?.data?.message || "Could not update service."); } };
+  return <div><div className="page-title-row"><div><span className="eyebrow">SERVICE CATALOG</span><h2>Manage Services</h2><p className="muted">Add occupations and types of work that customers can book.</p></div><button className="btn btn-ghost" onClick={load}>↻ Refresh</button></div>
+    {error && <div className="alert alert-error">{error}</div>}
+    <form className="inline-form" onSubmit={addCategory}><div className="form-grid"><div><label>New Occupation / Service</label><input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Carpentry" /></div><div><label>Description</label><input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Short description shown to customers" /></div></div><button className="btn btn-primary" type="submit" disabled={saving}>{saving ? "Adding…" : "+ Add Service"}</button></form>
+    <h3 className="section-title">All Services</h3><div className="table">{loading ? <div className="empty-state">Loading services…</div> : <><div className="table-row table-head"><span>Name</span><span>Description</span><span>Status</span><span>Action</span></div>{categories.map(c => <div key={c.id} className="table-row"><span><strong>{c.name}</strong></span><span className="muted">{c.description || "—"}</span><span><span className={`badge ${c.active ? "badge-completed" : "badge-cancelled"}`}>{c.active ? "Active" : "Inactive"}</span></span><span><button className="btn btn-ghost btn-sm" onClick={() => toggleActive(c.id)}>{c.active ? "Deactivate" : "Activate"}</button></span></div>)}{categories.length === 0 && <div className="empty-state">No services have been added yet.</div>}</>}</div>
+  </div>;
+}

@@ -1,0 +1,19 @@
+package com.fixmate.repository;
+
+import com.fixmate.entity.Role;
+import com.fixmate.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
+    Optional<User> findByPhone(String phone);
+    boolean existsByEmail(String email);
+    boolean existsByEmailAndIdNot(String email, Long id);
+    boolean existsByPhone(String phone);
+    boolean existsByPhoneAndIdNot(String phone, Long id);
+    List<User> findByRole(Role role);
+    long countByRole(Role role);
+}
